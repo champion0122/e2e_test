@@ -92,7 +92,7 @@ const withdraw = async (page: Page) => {
   
   await page.type('#basic_toWithdrawalPostscript','testtesttesttesttesttesttest')
   
-  await page.type('#basic','testtesttesttest')
+  // await page.type('#basic','testtesttesttest')
   
   await page.type('#basic_operationNote','testtesttesttest')
   
@@ -114,12 +114,4 @@ describe('withdraw test', () => {
     const resJson:any = await response.json();
     expect(resJson.success).toBe(true);
   })
-  it('withdraw submit good', async () => {
-    await withdraw(page);
-    // get '/receipt/account/fiatWithdrawToBank' response
-    const response = await page.waitForResponse(response => response.url().includes('/receipt/account/fiatWithdrawToBank') && response.status() === 200);
-    const resJson:any = await response.json();
-    expect(resJson.success).toBe(true);
-  }
-)
 })

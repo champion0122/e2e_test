@@ -3,12 +3,17 @@ const xlsx = require('node-xlsx')
 const nodeExcel = require('excel-export')
 
 // 读取Excel
-let exceldata = xlsx.parse('assets/test.xlsx')
-let exportData = []
-for (let rowId in exceldata[0]['data']) {
-  console.log(rowId)
-  let row = exceldata[0]['data'][rowId]
-  exportData.push(row[3])
+const exceldata = xlsx.parse('assets/test.xlsx')[0]['data'];
+const result = [];
+for (let i = 1; i < exceldata.length; i++) {
+  const row = exceldata[i];
+  result.push({
+    account: row[0],
+    pwd: row[1],
+    expectResult: row[2],
+    type: row[3]
+  })
+  console.log(result)
 }
 
 type ExcelData = {
