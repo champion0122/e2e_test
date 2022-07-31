@@ -1,8 +1,5 @@
-// const {loginFunc} = require('./utils/login')
 import { Page } from 'puppeteer';
 import { loginFunc } from './utils/login';
-// const fs = require('fs')
-const xlsx = require('node-xlsx')
 
 // todo: 配置文件的使用
 let loginTestData: LoginTestDataUnit[] = [
@@ -44,34 +41,11 @@ type LoginTestDataUnit = {
   type: 0 | 1
 }
 
-type JsonResponse = {
-  status: number,
-  success: boolean
-};
-
-const readExcel = async () => {
-  const exceldata = xlsx.parse('assets/test.xlsx')[0]['data'];
-  console.log(exceldata);
-  const result = [];
-  for (let i = 1; i < exceldata.length; i++) {
-    const row = exceldata[i];
-    result.push({
-      account: row[0],
-      pwd: row[1].toString(),
-      expectResult: row[2],
-      type: row[3]
-    })
-  }
-  return result;
-}
-
 beforeEach(async () => {
-  // loginTestData = await readExcel();
-  // await page.waitForTimeout(5000)
   await page.goto('http://localhost:8001/user/login');
 });
 
-const testLogin = (item: LoginTestDataUnit, page: Page) => {
+describe.each(loginTestData)('$account测试登录', (item: LoginTestDataUnit) => {
   const { account, pwd, expectResult, type } = item;
   const text = type === 0 ? '账密正确' : '账密错误';
   test(text, async () => {
@@ -85,11 +59,6 @@ const testLogin = (item: LoginTestDataUnit, page: Page) => {
     // 账密正确与错误的登录结果不一样
     await expect(toastText).toMatch(expectResult);
   }, 10000);
-}
-
-
-describe.each(loginTestData)('$variable.account测试登录', (item: LoginTestDataUnit) => {
-  testLogin(item, page);
 })
 
 describe('Onpay Login And Logout', () => {

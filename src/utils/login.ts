@@ -1,5 +1,4 @@
-// const fs = require('fs').promises;
-import fs from 'fs/promises';
+import {writeFile, readFile} from 'fs/promises'
 import { Page } from 'puppeteer';
 
 const cookiePath = './src/cookies/cookies.json';
@@ -23,7 +22,7 @@ export const loginFunc = async (page: Page, account: string, pwd: string) => {
 
 const getCookies = async() => {
   try{
-    const cookies = await fs.readFile(cookiePath, 'utf8');
+    const cookies = await readFile(cookiePath, 'utf8');
     return JSON.parse(cookies);
   }catch(e) {
     console.error(e);
@@ -66,7 +65,7 @@ const setCookies = async(page: Page,cookies: Cookie) => {
 const storeCookies = async(ckJson: Cookie) => {
   // 设置过期时间
   ckJson.expire = Date.now() + 1000 * 60 * 60 * 24;
-  await fs.writeFile(cookiePath, JSON.stringify(ckJson));
+  await writeFile(cookiePath, JSON.stringify(ckJson));
 }
 
 export const getIn = async(page: Page) => {
@@ -87,7 +86,3 @@ export const getIn = async(page: Page) => {
   }
 }
 
-// module.exports = {
-//   loginFunc,
-//   getIn
-// }
