@@ -1,5 +1,5 @@
 import { Page } from 'puppeteer';
-import { loginFunc } from './utils/login';
+import { loginByPwd } from './utils/login';
 
 // todo: 配置文件的使用
 let loginTestData: LoginTestDataUnit[] = [
@@ -12,12 +12,6 @@ let loginTestData: LoginTestDataUnit[] = [
   {
     account: 'faqob@dropjar.com',
     pwd: 'Xyc980831',
-    expectResult: '账号或密码错误',
-    type: 1
-  },
-  {
-    account: 'sawuhuw@givmail.com',
-    pwd: '1123456',
     expectResult: '账号或密码错误',
     type: 1
   },
@@ -50,7 +44,7 @@ describe.each(loginTestData)('$account测试登录', (item: LoginTestDataUnit) =
   const text = type === 0 ? '账密正确' : '账密错误';
   test(text, async () => {
     let toastText;
-    await loginFunc(page, account, pwd);
+    await loginByPwd(page, account, pwd);
     await page.waitForResponse(response => response.url().includes('/receipt/login/login') && response.status() === 200);
     // const jsonRes = (await response.json()) as JsonResponse;
     if (type === 0)
@@ -71,7 +65,7 @@ describe('Onpay Login And Logout', () => {
   });
 
   it('正确退出', async () => {
-    await loginFunc(page,'faqob@dropjar.com', 'Xyc980830');
+    await loginByPwd(page,'faqob@dropjar.com', 'Xyc980830');
     await page.waitForSelector('span.ant-dropdown-trigger');
     await page.hover('span.ant-dropdown-trigger');
     await page.waitForSelector('span.ant-dropdown-menu-title-content > span.anticon-logout');

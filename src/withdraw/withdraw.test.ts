@@ -1,6 +1,6 @@
-// const {getIn} = require('../utils/login');
+// const {loginFunc} = require('../utils/login');
 import { ElementHandle, Page } from 'puppeteer';
-import {getIn} from '../utils/login';
+import {loginFunc} from '../utils/login';
 
 const withdraw = async (page: Page) => {
   let pathName = await page.evaluate(() => {
@@ -8,7 +8,7 @@ const withdraw = async (page: Page) => {
   });
   console.log(pathName);
   // while(pathName !== '/UserHome'){
-  //   await getIn(page);
+  //   await loginFunc(page);
   //   pathName = await page.evaluate(() => {
   //     return window.location.pathname;
   //   });
@@ -103,7 +103,7 @@ const withdraw = async (page: Page) => {
 beforeEach(async() => {
   await page.goto('http://localhost:8001');
   await page.waitForNavigation();
-  await getIn(page);
+  await loginFunc(page);
 })
 
 describe('withdraw test', () => {

@@ -9,7 +9,7 @@ type Cookie = {
   expire: number
 }
 
-export const loginFunc = async (page: Page, account: string, pwd: string) => {
+export const loginByPwd = async (page: Page, account: string, pwd: string) => {
   const accountInputEle = await page.$('#basic_account');
   const pwdInputEle = await page.$('#basic_password');
   await accountInputEle?.type(account, { delay: 20 });
@@ -68,14 +68,14 @@ const storeCookies = async(ckJson: Cookie) => {
   await writeFile(cookiePath, JSON.stringify(ckJson));
 }
 
-export const getIn = async(page: Page) => {
+export const loginFunc = async(page: Page) => {
   try{
     const cookies = await getCookies();
     console.log(cookies);
     const isSetCookie = await setCookies(page,cookies);
     console.log(isSetCookie);
     if (!isSetCookie){
-      await loginFunc(page, 'faqob@dropjar.com', 'Xyc980830');
+      await loginByPwd(page, 'faqob@dropjar.com', 'Xyc980830');
       const response = await page.waitForResponse(response => response.url().includes('/receipt/login/login') && response.status() === 200);
       const jsonRes:any = await response.json();
       await storeCookies(jsonRes.obj.result);

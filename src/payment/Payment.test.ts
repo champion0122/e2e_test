@@ -1,10 +1,10 @@
-import { getIn } from "../utils/login";
+import { loginFunc } from "../utils/login";
 import { ElementHandle, Page } from "puppeteer";
 
 beforeEach(async () => {
   await page.goto('http://localhost:8001');
   await page.waitForNavigation();
-  await getIn(page);
+  await loginFunc(page);
 })
 
 const withdraw = async (page: Page) => {
