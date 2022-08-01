@@ -50,6 +50,17 @@ const paymentTestData: PaymentData[] = [
     paymentAmount: '10',
     paymentAccount: 1,
     pwd: '123456',
+    expectResult: 0,
+    postScript: 'testtesttesttesttesttesttesttesttesttesttestttesttesttest',
+    remark: 'testtesttesttesttesttesttesttesttesttesttest'
+  },
+  {
+    paymentType: 0,
+    paymentCoin: 1,
+    paymentAccountType: 0,
+    paymentAmount: '10',
+    paymentAccount: 1,
+    pwd: '1234561',
     expectResult: 1,
     postScript: 'testtesttesttesttesttesttesttesttesttesttestttesttesttest',
     remark: 'testtesttesttesttesttesttesttesttesttesttest'
@@ -123,7 +134,7 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
   }
   await page.keyboard.press('Enter');
 
-  await page.type('#basic_password', pwd)
+  await page.type('#basic_payPassword', pwd)
 
   await page.type('#basic_toPayeePostscript', postScript)
 
@@ -145,14 +156,9 @@ describe.each(paymentTestData)(`付款测试`, (item: PaymentData) => {
   const text = isWithdrawSuccess ? `${paymentCoinMap[paymentCoin]} 付款 ${paymentAmount ?? paymentAmountTo} 成功` : `${paymentCoinMap[paymentCoin]} 付款 ${paymentAmount ?? paymentAmountTo} 失败`;
   test(text, async () => {
     await fiatPay(page, item);
+    const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/account/fiatPayToBank') && response.status() === 200, {timeout: 3000});
+    const exchangeResultJson:any = await exchangeResult.json();
 
-    try{
-      const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/account/fiatPayToBank') && response.status() === 200, {timeout: 3000});
-      const exchangeResultJson:any = await exchangeResult.json();
-
-      await expect(exchangeResultJson.success).toBe(isWithdrawSuccess);
-    }catch(e){
-      console.error(e)
-    }
+    await expect(exchangeResultJson.success).toBe(isWithdrawSuccess);
   }, 20000);
 });
