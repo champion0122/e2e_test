@@ -18,8 +18,8 @@ type WithdrawData = {
   withdrawAccount: number,
   // 支付密码
   pwd: string,
-  // 预期结果 0 成功 1 失败
-  expectResult: 0 | 1,
+  // 预期结果 0 成功 1 接口失败 2 按钮控制
+  expectResult: 0 | 1 | 2,
   // 提现附言
   postScript?: string,
   // 操作备注
@@ -45,12 +45,23 @@ const withdrawTestData: WithdrawData[] = [
   },
   {
     withdrawType: 0,
-    withdrawCoin: 1,
+    withdrawCoin: 0,
     withdrawAccountType: 0,
     withdrawAmount: '10',
     withdrawAccount: 1,
-    pwd: '123456',
+    pwd: '1234567',
     expectResult: 1,
+    postScript: 'testtesttesttesttesttesttesttesttesttesttestttesttesttest',
+    remark: 'testtesttesttesttesttesttesttesttesttesttest'
+  },
+  {
+    withdrawType: 0,
+    withdrawCoin: 1,
+    withdrawAccountType: 1,
+    withdrawAmount: '10',
+    withdrawAccount: 1,
+    pwd: '123456',
+    expectResult: 2,
     postScript: 'testtesttesttesttesttesttesttesttesttesttestttesttesttest',
     remark: 'testtesttesttesttesttesttesttesttesttesttest'
   },
@@ -68,6 +79,7 @@ const withdraw = async (page: Page, withdrawData: WithdrawData) => {
   await page.waitForTimeout(1000);
   await page.click('[title=提现]')
 
+  await page.waitForResponse(response => response.url().includes('/receipt/bankAccount/getPassBanks') && response.status() === 200);
   await page.waitForSelector('#basic_withdrawType > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
   await page.click('#basic_withdrawType > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
 
@@ -89,37 +101,7 @@ const withdraw = async (page: Page, withdrawData: WithdrawData) => {
     }
   }
 
-
-
-  /*
-  // 采购协议
-  await page.waitForSelector('#basic_purchaseProtocol > .ant-upload-picture-card-wrapper > .ant-upload-list > .ant-upload > .ant-upload > input')
-  const uploader1 = await page.$('#basic_purchaseProtocol > .ant-upload-picture-card-wrapper > .ant-upload-list > .ant-upload > .ant-upload > input')
-  await uploader1?.uploadFile('assets/lake.jpeg')
-  await page.waitForTimeout(1500)
-
-  // 采购订单明细
-  const uploader2 = await page.$('#basic_purchaseOrderDetail > .ant-upload-picture-card-wrapper > .ant-upload-list > .ant-upload > .ant-upload > input')
-  await uploader2?.uploadFile('assets/lake.jpeg')
-  await page.waitForTimeout(1500)
-
-  // 收据发票
-  const uploader3 = await page.$('#basic_electronicCommerceInvoice > .ant-upload-picture-card-wrapper > .ant-upload-list > .ant-upload > .ant-upload > input')
-  await uploader3?.uploadFile('assets/lake.jpeg')
-  await page.waitForTimeout(1500)
-
-  // 店铺URL
-  const uploader4 = await page.$('#basic_electronicCommerceStoreUrl > .ant-upload-picture-card-wrapper > .ant-upload-list > .ant-upload > .ant-upload > input')
-  await uploader4?.uploadFile('assets/lake.jpeg')
-  await page.waitForTimeout(1500)
-  
-  // 物流订单
-  const uploader5 = await page.$('.ant-upload-picture-card-wrapper > .ant-upload-list > .ant-upload:nth-child(1) > .ant-upload > input')
-  await uploader5?.uploadFile('assets/lake.jpeg')
-  await page.waitForTimeout(1500)
-  */
-
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(2000);
   await page.waitForSelector('#basic_fiat')
   await page.click('#basic_fiat')
   for (let i = 0; i < withdrawCoin; i++) {
@@ -131,10 +113,11 @@ const withdraw = async (page: Page, withdrawData: WithdrawData) => {
   await page.waitForSelector('#basic_isOnshore > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
   await page.click('#basic_isOnshore > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
 
-  // 根据withdrawAccountType选择提现账户类型
+  // 根据withdrawAccountType选择提现账户类型,银行账户也会变化需等待请求
   if (withdrawAccountType === 1) {
     await page.keyboard.press('ArrowRight');
-    await page.waitForTimeout(1000);
+    // await page.waitForTimeout(1000);
+    await page.waitForResponse(response => response.url().includes('/receipt/bankAccount/getPassBanks') && response.status() === 200);
   }
 
   await page.click('#basic_withdrawNumber')
@@ -144,6 +127,7 @@ const withdraw = async (page: Page, withdrawData: WithdrawData) => {
     await page.type('#basic_arriveAmount', withdrawAmountTo)
   }
 
+  await page.waitForTimeout(2000);
   await page.waitForSelector('#basic_account')
   await page.click('#basic_account')
 
@@ -178,16 +162,20 @@ describe.each(withdrawTestData)(`提现测试`, (item: WithdrawData) => {
   test(text, async () => {
     await withdraw(page, item);
 
-    try{
-      const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/account/fiatWithdrawToBank') && response.status() === 200, {timeout: 3000});
+    if(expectResult !== 2){
+      const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/account/fiatWithdrawToBank') && response.status() === 200, {timeout: 5000});
       const exchangeResultJson:any = await exchangeResult.json();
 
       await expect(exchangeResultJson.success).toBe(isWithdrawSuccess);
-    }catch(e){
+    }else {
       await page.waitForSelector('.app-btn-submit-lg');
       const errorText = await page.$eval('.app-btn-submit-lg', el => (el as HTMLElement).innerText);
       console.log(errorText);
       await expect(errorText).toBe('提现服务升级中，暂不支持提现');
     }
-  }, 20000);
+  }, 25000);
 });
+
+afterEach(async () => {
+  await page.waitForTimeout(2000)
+})

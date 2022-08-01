@@ -34,10 +34,10 @@ const paymentCoinMap = {
 const paymentTestData: PaymentData[] = [
   {
     paymentType: 1,
-    paymentCoin: 0,
+    paymentCoin: 1,
     paymentAccountType: 0,
     paymentAmount: '10',
-    paymentAccount: 1,
+    paymentAccount: 0,
     pwd: '123456',
     expectResult: 0,
     postScript: 'testtesttesttesttesttesttesttesttesttesttestttesttesttest',
@@ -47,7 +47,7 @@ const paymentTestData: PaymentData[] = [
     paymentType: 0,
     paymentCoin: 1,
     paymentAccountType: 0,
-    paymentAmount: '10',
+    paymentAmountTo: '10',
     paymentAccount: 1,
     pwd: '123456',
     expectResult: 0,
@@ -79,6 +79,8 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
   await page.waitForTimeout(1000);
   await page.click('[title=付款]')
 
+  await page.waitForTimeout(1000);
+
   await page.waitForSelector('#basic_type > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
   await page.click('#basic_type > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
 
@@ -100,7 +102,7 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
     }
   }
 
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(4000);
   await page.waitForSelector('#basic_currency')
   await page.click('#basic_currency')
   for (let i = 0; i < paymentCoin; i++) {
@@ -115,7 +117,8 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
   // 根据paymentAccountType选择付款账户类型
   if (paymentAccountType === 1) {
     await page.keyboard.press('ArrowRight');
-    await page.waitForTimeout(1000);
+    // await page.waitForTimeout(1000);
+    await page.waitForResponse(response => response.url().includes('/receipt/payBankAccount/getPayPassBanks') && response.status() === 200);
   }
 
   await page.click('#basic_amount')
@@ -126,6 +129,7 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
   }
 
   await page.waitForSelector('#basic_bankId')
+  await page.waitForTimeout(2000);
   await page.click('#basic_bankId')
 
   // 选择账号下拉框第i项
@@ -160,5 +164,9 @@ describe.each(paymentTestData)(`付款测试`, (item: PaymentData) => {
     const exchangeResultJson:any = await exchangeResult.json();
 
     await expect(exchangeResultJson.success).toBe(isWithdrawSuccess);
-  }, 20000);
+  }, 30000);
 });
+
+afterEach(async () => {
+  await page.waitForTimeout(2000)
+})
