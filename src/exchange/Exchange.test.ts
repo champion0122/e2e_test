@@ -81,6 +81,7 @@ const exchangeAction = async(page: Page, digitalCoin: number, fiatCoin: number,d
   await page.waitForSelector('#basic_password')
   await page.type('#basic_password',pwd)
 
+  await page.waitForTimeout(1500)
   await page.waitForSelector('.ant-row > .ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn')
   await page.click('.ant-row > .ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn')
 
@@ -101,6 +102,10 @@ beforeEach(async() => {
   await loginFunc(page);
 })
 
+afterEach(async() => {
+  await page.waitForTimeout(2000)
+})
+
 describe.each(exchangeTestData)(`兑换测试`, (item: ExchangeData) => {
   // define variables from ExchangeData keys
   const { digitalCoin, fiatCoin, digitalCoinAmount, pwd, expectResult, expectMsg } = item;
@@ -110,7 +115,7 @@ describe.each(exchangeTestData)(`兑换测试`, (item: ExchangeData) => {
     await exchangeAction(page,digitalCoin, fiatCoin,digitalCoinAmount, pwd);
 
     try{
-      const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/digitalExchange/exchange') && response.status() === 200, {timeout: 2000});
+      const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/digitalExchange/exchange') && response.status() === 200, {timeout: 4000});
       const exchangeResultJson:any = await exchangeResult.json();
 
       await expect(exchangeResultJson.success).toBe(isExchangeSuccess);
