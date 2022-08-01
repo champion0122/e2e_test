@@ -56,7 +56,7 @@ const withdraw = async (page: Page) => {
   // await page.waitForSelector('.rc-virtual-list-holder > div > .rc-virtual-list-holder-inner > .app-select-option-pre:nth-child(2) > .ant-select-item-option-content')
   // await page.click('.rc-virtual-list-holder > div > .rc-virtual-list-holder-inner > .app-select-option-pre:nth-child(2) > .ant-select-item-option-content')
 
-  await page.type('#basic_payPassword', 'Xyc980830')
+  await page.type('#basic_payPassword', '123456')
 
   await page.type('#basic_toPayeePostscript', 'testtesttesttesttesttesttest')
 

@@ -5,7 +5,7 @@ import { loginByPwd } from './utils/login';
 let loginTestData: LoginTestDataUnit[] = [
   {
     account: 'faqob@dropjar.com',
-    pwd: 'Xyc980830',
+    pwd: '123456',
     expectResult: '🎉 🎉 🎉 登录成功！',
     type: 0
   },
@@ -65,7 +65,7 @@ describe('Onpay Login And Logout', () => {
   });
 
   it('正确退出', async () => {
-    await loginByPwd(page,'faqob@dropjar.com', 'Xyc980830');
+    await loginByPwd(page,'faqob@dropjar.com', '123456');
     await page.waitForSelector('span.ant-dropdown-trigger');
     await page.hover('span.ant-dropdown-trigger');
     await page.waitForSelector('span.ant-dropdown-menu-title-content > span.anticon-logout');

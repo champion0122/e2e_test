@@ -30,7 +30,7 @@ const exchangeTestData:ExchangeData[] = [
     digitalCoin: 0,
     fiatCoin: 0,
     digitalCoinAmount: '1',
-    pwd: 'Xyc980830',
+    pwd: '123456',
     expectResult: 0
   },
   // CNHC to CNH exchange
@@ -38,7 +38,7 @@ const exchangeTestData:ExchangeData[] = [
     digitalCoin: 2,
     fiatCoin: 1,
     digitalCoinAmount: '1',
-    pwd: 'Xyc980830',
+    pwd: '123456',
     expectResult: 0
   },
   // USDC to USD exchange 2000, expect fail
@@ -46,7 +46,7 @@ const exchangeTestData:ExchangeData[] = [
     digitalCoin: 1,
     fiatCoin: 0,
     digitalCoinAmount: '2000',
-    pwd: 'Xyc980830',
+    pwd: '123456',
     expectResult: 1,
     expectMsg: '兑换数量不可超过可用数量！'
   }
@@ -109,12 +109,12 @@ describe.each(exchangeTestData)(`兑换测试`, (item: ExchangeData) => {
   test(text, async () => {
     await exchangeAction(page,digitalCoin, fiatCoin,digitalCoinAmount, pwd);
 
-    if(isExchangeSuccess){
+    try{
       const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/digitalExchange/exchange') && response.status() === 200, {timeout: 2000});
       const exchangeResultJson:any = await exchangeResult.json();
 
       await expect(exchangeResultJson.success).toBe(isExchangeSuccess);
-    }else {
+    }catch(e){
       await page.waitForSelector('.ant-form-item-explain-error');
       const errorText = await page.$eval('.ant-form-item-explain-error', el => (el as HTMLElement).innerText);
       console.log(errorText);

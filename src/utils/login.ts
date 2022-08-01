@@ -73,7 +73,7 @@ export const loginFunc = async(page: Page) => {
     const cookies = await getCookies();
     const isSetCookie = await setCookies(page,cookies);
     if (!isSetCookie){
-      await loginByPwd(page, 'faqob@dropjar.com', 'Xyc980830');
+      await loginByPwd(page, 'faqob@dropjar.com', '123456');
       const response = await page.waitForResponse(response => response.url().includes('/receipt/login/login') && response.status() === 200);
       const jsonRes:any = await response.json();
       await storeCookies(jsonRes.obj.result);

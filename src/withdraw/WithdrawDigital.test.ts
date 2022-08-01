@@ -35,7 +35,7 @@ const withdrawDigital = async(page: Page) => {
 
   await page.waitForSelector('#basic_password')
   await page.click('#basic_password')
-  await page.keyboard.type('Xyc980830')
+  await page.keyboard.type('123456')
 
   await page.waitForSelector('.ant-form-item-control-input-content > .app-btn-submit-lg')
   await page.click('.ant-form-item-control-input-content > .app-btn-submit-lg')
