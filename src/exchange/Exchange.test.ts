@@ -11,6 +11,7 @@ type ExchangeData = {
   pwd: string;
   // expect result: success 0 or fail 1
   expectResult: number;
+  expectMsg?: string;
 }
 
 const digitalMap = {
@@ -46,7 +47,8 @@ const exchangeTestData:ExchangeData[] = [
     fiatCoin: 0,
     digitalCoinAmount: '2000',
     pwd: 'Xyc980830',
-    expectResult: 1
+    expectResult: 1,
+    expectMsg: '兑换数量不可超过可用数量！'
   }
 ];
 
@@ -57,7 +59,7 @@ const exchangeAction = async(page: Page, digitalCoin: number, fiatCoin: number,d
   await page.click('[title=兑换管理]')
 
   await page.waitForResponse(response => response.url().includes('/receipt/account/getAccountInfo') && response.status() === 200);
-  await page.waitForTimeout(1000)
+  await page.waitForTimeout(1500)
   await page.click('#basic_sell')
   // 选中对应数字货币
   for(let i = 0; i < digitalCoin; i++) {
@@ -82,10 +84,15 @@ const exchangeAction = async(page: Page, digitalCoin: number, fiatCoin: number,d
   await page.waitForSelector('.ant-row > .ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn')
   await page.click('.ant-row > .ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn')
 
-  await page.waitForResponse(response => response.url().includes('/receipt/digitalExchange/exchangeValidate') && response.status() === 200);
+  try {
+    await page.waitForResponse(response => response.url().includes('/receipt/digitalExchange/exchangeValidate') && response.status() === 200, { timeout: 4000 });
 
-  await page.waitForSelector('.ant-row > .ant-btn-primary')
-  await page.click('.ant-row > .ant-btn-primary')
+    await page.waitForSelector('.ant-row > .ant-btn-primary')
+    await page.click('.ant-row > .ant-btn-primary')
+  } catch (e) {
+    console.error(e);
+    return;
+  }
 }
 
 beforeEach(async() => {
@@ -96,7 +103,7 @@ beforeEach(async() => {
 
 describe.each(exchangeTestData)(`兑换测试`, (item: ExchangeData) => {
   // define variables from ExchangeData keys
-  const { digitalCoin, fiatCoin, digitalCoinAmount, pwd, expectResult } = item;
+  const { digitalCoin, fiatCoin, digitalCoinAmount, pwd, expectResult, expectMsg } = item;
   const isExchangeSuccess = expectResult === 0;
   const text = isExchangeSuccess ? `${digitalMap[digitalCoin]} to ${fiatMap[fiatCoin]}兑换成功` : `${digitalMap[digitalCoin]} to ${fiatMap[fiatCoin]}兑换失败`;
   test(text, async () => {
@@ -104,13 +111,14 @@ describe.each(exchangeTestData)(`兑换测试`, (item: ExchangeData) => {
 
     if(isExchangeSuccess){
       const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/digitalExchange/exchange') && response.status() === 200, {timeout: 2000});
-      const exchangeResultJson = await exchangeResult.json();
+      const exchangeResultJson:any = await exchangeResult.json();
 
       await expect(exchangeResultJson.success).toBe(isExchangeSuccess);
     }else {
       await page.waitForSelector('.ant-form-item-explain-error');
       const errorText = await page.$eval('.ant-form-item-explain-error', el => (el as HTMLElement).innerText);
-      await expect(errorText).toBe('兑换数量不可超过可用数量！');
+      console.log(errorText);
+      await expect(errorText).toBe(expectMsg);
     }
   }, 20000);
 })

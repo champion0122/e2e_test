@@ -71,9 +71,7 @@ const storeCookies = async(ckJson: Cookie) => {
 export const loginFunc = async(page: Page) => {
   try{
     const cookies = await getCookies();
-    console.log(cookies);
     const isSetCookie = await setCookies(page,cookies);
-    console.log(isSetCookie);
     if (!isSetCookie){
       await loginByPwd(page, 'faqob@dropjar.com', 'Xyc980830');
       const response = await page.waitForResponse(response => response.url().includes('/receipt/login/login') && response.status() === 200);
