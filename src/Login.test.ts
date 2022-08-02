@@ -3,26 +3,26 @@ import { loginByPwd } from './utils/login';
 
 // todo: 配置文件的使用
 let loginTestData: LoginTestDataUnit[] = [
+  // {
+  //   account: 'faqob@dropjar.com',
+  //   pwd: '123456',
+  //   expectResult: '🎉 🎉 🎉 登录成功！',
+  //   type: 0
+  // },
+  // {
+  //   account: 'faqob@dropjar.com',
+  //   pwd: 'Xyc980831',
+  //   expectResult: '账号或密码错误',
+  //   type: 1
+  // },
   {
-    account: 'faqob@dropjar.com',
-    pwd: '123456',
-    expectResult: '🎉 🎉 🎉 登录成功！',
-    type: 0
-  },
-  {
-    account: 'faqob@dropjar.com',
-    pwd: 'Xyc980831',
-    expectResult: '账号或密码错误',
-    type: 1
-  },
-  {
-    account: 'sawuhuw@givmail.com',
+    account: 'feluxeduq@getnada.com',
     pwd: '2123456',
     expectResult: '账号或密码错误',
     type: 1
   },
   {
-    account: 'sawuhuw@givmail.com',
+    account: 'feluxeduq@getnada.com',
     pwd: '123456',
     expectResult: '🎉 🎉 🎉 登录成功！',
     type: 0

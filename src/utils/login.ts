@@ -25,7 +25,7 @@ const getCookies = async() => {
     const cookies = await readFile(cookiePath, 'utf8');
     return JSON.parse(cookies);
   }catch(e) {
-    console.error(e);
+    // console.error(e);
     return {};
   }
 }
@@ -80,7 +80,7 @@ export const loginFunc = async(page: Page) => {
       await page.waitForNavigation();
     }
   }catch(e) {
-    console.error(e);
+    // console.error(e);
   }
 }
 

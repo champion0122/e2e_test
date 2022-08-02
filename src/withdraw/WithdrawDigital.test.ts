@@ -71,9 +71,10 @@ const withdrawDigital = async(page: Page, data: WithdrawDigital) => {
 
   await page.waitForResponse(res => res.url().includes('/receipt/account/getAccountInfo') && res.status() === 200); 
 
-  await page.waitForTimeout(2000);
   await page.waitForSelector('#basic_fiat')
+  await page.waitForTimeout(1000);
   await page.click('#basic_fiat')
+  await page.waitForTimeout(1000);
   for(let i = 0; i < withdrawType; i++) {
     await page.keyboard.press('ArrowDown');
   }
@@ -104,16 +105,16 @@ const withdrawDigital = async(page: Page, data: WithdrawDigital) => {
   await page.click('.ant-form-item-control-input-content > .app-btn-submit-lg')
 }
 
-describe.each(withdrawDigitalData)(`数字货币提币test`, (data) => {
+describe.each(withdrawDigitalData)(`数字货币提币`, (data) => {
   const { withdrawType, withdrawAmount, expectResult } = data;
   const isWithdrawSuccess = expectResult === 0;
   const text = isWithdrawSuccess ? `${withdrawCoinMap[withdrawType]} 提现 ${withdrawAmount} 成功` : `${withdrawCoinMap[withdrawType]} 提现 ${withdrawAmount} 失败`;
-  it(text, async () => {
+  test(text, async () => {
     await withdrawDigital(page, data);
     // get '/receipt/account/fiatWithdrawToBank' response
     const response = await page.waitForResponse(response => response.url().includes('/receipt/account/digitalWithdraw') && response.status() === 200);
     const resJson:any = await response.json();
-    console.log(resJson)
+    // console.log(resJson)
     expect(resJson.success).toBe(isWithdrawSuccess);
-  })
+  }, 60000);
 })

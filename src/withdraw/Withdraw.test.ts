@@ -18,8 +18,10 @@ type WithdrawData = {
   withdrawAccount: number,
   // 支付密码
   pwd: string,
-  // 预期结果 0 成功 1 接口失败 2 按钮控制
+  // 预期结果 0 成功 1 接口失败 2 兑换服务关闭
   expectResult: 0 | 1 | 2,
+  // 失败提示
+  expectResultText?: string,
   // 提现附言
   postScript?: string,
   // 操作备注
@@ -40,8 +42,8 @@ const withdrawTestData: WithdrawData[] = [
     withdrawAccount: 1,
     pwd: '123456',
     expectResult: 0,
-    postScript: 'testtesttesttesttesttesttesttesttesttesttestttesttesttest',
-    remark: 'testtesttesttesttesttesttesttesttesttesttest'
+    postScript: 'asdasd  waewqea       sdasd  waewq      test',
+    remark: 'wadaxiwa                                                gein'
   },
   {
     withdrawType: 0,
@@ -52,7 +54,8 @@ const withdrawTestData: WithdrawData[] = [
     pwd: '1234567',
     expectResult: 1,
     postScript: 'testtesttesttesttesttesttesttesttesttesttestttesttesttest',
-    remark: 'testtesttesttesttesttesttesttesttesttesttest'
+    remark: 'testtesttesttesttesttesttesttesttesttesttest',
+    expectResultText: '支付密码验证失败'
   },
   {
     withdrawType: 0,
@@ -67,17 +70,20 @@ const withdrawTestData: WithdrawData[] = [
   },
 ]
 
+// 1. try catch
+// 2. tab
+// 3. scroll
 const withdraw = async (page: Page, withdrawData: WithdrawData) => {
-  const { withdrawType, withdrawCoin, tradeType, withdrawAccountType, withdrawAmount, withdrawAmountTo, withdrawAccount, pwd, expectResult, postScript, remark } = withdrawData;
+  const { withdrawType, withdrawCoin, tradeType, withdrawAccountType, withdrawAmount, withdrawAmountTo, withdrawAccount, pwd, postScript, remark } = withdrawData;
 
-  await page.waitForSelector('.ant-pro-sider-menu')
+  // await page.waitForSelector('.ant-pro-sider-menu')
 
-  await page.waitForSelector('[title=提现管理]')
-  await page.click('[title=提现管理]')
+  // await page.waitForSelector('[title=提现管理]')
+  // await page.click('[title=提现管理]')
 
-  await page.waitForSelector('.ant-menu-submenu')
-  await page.waitForTimeout(1000);
-  await page.click('[title=提现]')
+  // await page.waitForSelector('.ant-menu-submenu')
+  // await page.waitForTimeout(1000);
+  // await page.click('[title=提现]')
 
   await page.waitForResponse(response => response.url().includes('/receipt/bankAccount/getPassBanks') && response.status() === 200);
   await page.waitForSelector('#basic_withdrawType > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
@@ -95,7 +101,7 @@ const withdraw = async (page: Page, withdrawData: WithdrawData) => {
     }
 
     const uploaders: Array<ElementHandle> = await page.$$('.ant-upload > input');
-    for (let i = 0; i < uploaders.length; i++) {
+    for (let i = 0; i < uploaders.length - 1; i++) {
       await uploaders[i].uploadFile('assets/lake.jpeg')
       await page.waitForTimeout(1500)
     }
@@ -104,6 +110,7 @@ const withdraw = async (page: Page, withdrawData: WithdrawData) => {
   await page.waitForTimeout(2000);
   await page.waitForSelector('#basic_fiat')
   await page.click('#basic_fiat')
+  await page.waitForTimeout(1000);
   for (let i = 0; i < withdrawCoin; i++) {
     await page.keyboard.press('ArrowDown')
   }
@@ -116,7 +123,6 @@ const withdraw = async (page: Page, withdrawData: WithdrawData) => {
   // 根据withdrawAccountType选择提现账户类型,银行账户也会变化需等待请求
   if (withdrawAccountType === 1) {
     await page.keyboard.press('ArrowRight');
-    // await page.waitForTimeout(1000);
     await page.waitForResponse(response => response.url().includes('/receipt/bankAccount/getPassBanks') && response.status() === 200);
   }
 
@@ -127,11 +133,10 @@ const withdraw = async (page: Page, withdrawData: WithdrawData) => {
     await page.type('#basic_arriveAmount', withdrawAmountTo)
   }
 
-  await page.waitForTimeout(2000);
-  await page.waitForSelector('#basic_account')
   await page.click('#basic_account')
 
   // 选择账号下拉框第i项
+  await page.waitForTimeout(1000);
   for (let i = 0; i < withdrawAccount; i++) {
     await page.keyboard.press('ArrowDown')
   }
@@ -141,39 +146,47 @@ const withdraw = async (page: Page, withdrawData: WithdrawData) => {
 
   await page.type('#basic_toWithdrawalPostscript', postScript)
 
-  // await page.type('#basic','testtesttesttest')
-
   await page.type('#basic_operationNote', remark)
 
   await page.waitForSelector('.ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn > span')
   await page.click('.ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn > span')
 }
 
-beforeEach(async () => {
+beforeAll(async () => {
   await page.goto('http://localhost:8001');
   await page.waitForNavigation();
   await loginFunc(page);
 })
 
+beforeEach(async () => {
+  await page.goto('http://localhost:8001/WithdrawalManagement/Withdraw');
+})
+
 describe.each(withdrawTestData)(`提现测试`, (item: WithdrawData) => {
-  const { withdrawCoin, expectResult, withdrawAmount, withdrawAmountTo } = item;
+  const { withdrawCoin, expectResult, withdrawAmount, withdrawAmountTo, expectResultText = '' } = item;
   const isWithdrawSuccess = expectResult === 0;
-  const text = isWithdrawSuccess ? `${withdrawCoinMap[withdrawCoin]} 提现 ${withdrawAmount ?? withdrawAmountTo} 成功` : `${withdrawCoinMap[withdrawCoin]} 提现 ${withdrawAmount ?? withdrawAmountTo} 失败`;
+  const text = isWithdrawSuccess ? `${withdrawCoinMap[withdrawCoin]} 提现 ${withdrawAmount ?? withdrawAmountTo} 成功` : `${withdrawCoinMap[withdrawCoin]} 提现 ${withdrawAmount ?? withdrawAmountTo} 失败 ${expectResultText}`;
   test(text, async () => {
     await withdraw(page, item);
 
-    if(expectResult !== 2){
-      const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/account/fiatWithdrawToBank') && response.status() === 200, {timeout: 5000});
-      const exchangeResultJson:any = await exchangeResult.json();
+    if (expectResult !== 2) {
+      const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/account/fiatWithdrawToBank') && response.status() === 200, { timeout: 5000 });
+      const exchangeResultJson: any = await exchangeResult.json();
 
       await expect(exchangeResultJson.success).toBe(isWithdrawSuccess);
-    }else {
+
+      if (expectResultText) {
+        const toastText = await page.$eval('div > .ant-message > div > .ant-message-notice > .ant-message-notice-content > div > span:nth-child(2)', el => (el as HTMLElement).innerText);
+        // 对提示框文本的断言
+        await expect(toastText).toMatch(expectResultText);
+      }
+    } else {
       await page.waitForSelector('.app-btn-submit-lg');
       const errorText = await page.$eval('.app-btn-submit-lg', el => (el as HTMLElement).innerText);
-      console.log(errorText);
+      // console.log(errorText);
       await expect(errorText).toBe('提现服务升级中，暂不支持提现');
     }
-  }, 25000);
+  }, 60000);
 });
 
 afterEach(async () => {

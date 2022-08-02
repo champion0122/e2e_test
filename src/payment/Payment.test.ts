@@ -92,7 +92,6 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
 
     if (tradeType === 1) {
       await page.keyboard.press('ArrowRight');
-      await page.waitForTimeout(1000);
     }
 
     const uploaders: Array<ElementHandle> = await page.$$('.ant-upload > input');
@@ -102,9 +101,10 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
     }
   }
 
-  await page.waitForTimeout(4000);
   await page.waitForSelector('#basic_currency')
+  await page.waitForTimeout(1000);
   await page.click('#basic_currency')
+  await page.waitForTimeout(1000);
   for (let i = 0; i < paymentCoin; i++) {
     await page.keyboard.press('ArrowDown')
   }
@@ -128,11 +128,13 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
     await page.type('#basic_arriveAmount', paymentAmountTo)
   }
 
-  await page.waitForSelector('#basic_bankId')
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(3000);
+  // await page.waitForSelector('#basic_bankId')
+  // await page.waitForTimeout(2000);
   await page.click('#basic_bankId')
 
   // 选择账号下拉框第i项
+  await page.waitForTimeout(1000);
   for (let i = 0; i < paymentAccount; i++) {
     await page.keyboard.press('ArrowDown')
   }
@@ -160,11 +162,11 @@ describe.each(paymentTestData)(`付款测试`, (item: PaymentData) => {
   const text = isWithdrawSuccess ? `${paymentCoinMap[paymentCoin]} 付款 ${paymentAmount ?? paymentAmountTo} 成功` : `${paymentCoinMap[paymentCoin]} 付款 ${paymentAmount ?? paymentAmountTo} 失败`;
   test(text, async () => {
     await fiatPay(page, item);
-    const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/account/fiatPayToBank') && response.status() === 200, {timeout: 3000});
+    const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/account/fiatPayToBank') && response.status() === 200, {timeout: 4000});
     const exchangeResultJson:any = await exchangeResult.json();
 
     await expect(exchangeResultJson.success).toBe(isWithdrawSuccess);
-  }, 30000);
+  }, 60000);
 });
 
 afterEach(async () => {

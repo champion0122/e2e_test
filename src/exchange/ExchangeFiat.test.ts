@@ -25,7 +25,7 @@ const fiatMap = {
   1: 'CNH'
 }
 
-const exchangeTestData: ExchangeData[] = [
+const exchangeTestData:ExchangeData[] = [
   {
     digitalCoin: 0,
     fiatCoin: 0,
@@ -50,65 +50,9 @@ const exchangeTestData: ExchangeData[] = [
     expectResult: 1,
     expectMsg: '兑换数量不可超过可用数量！'
   },
-  // {
-  //   digitalCoin: 0,
-  //   fiatCoin: 1,
-  //   digitalCoinAmount: '1',
-  //   pwd: '123456',
-  //   expectResult: 0
-  // },
-  // {
-  //   digitalCoin: 1,
-  //   fiatCoin: 1,
-  //   digitalCoinAmount: '1',
-  //   pwd: '123456',
-  //   expectResult: 0
-  // },
-  // {
-  //   digitalCoin: 2,
-  //   fiatCoin: 1,
-  //   digitalCoinAmount: '1',
-  //   pwd: '123456',
-  //   expectResult: 0
-  // },
-  // {
-  //   digitalCoin: 2,
-  //   fiatCoin: 1,
-  //   digitalCoinAmount: '1',
-  //   pwd: '123456',
-  //   expectResult: 0
-  // },
-  // {
-  //   digitalCoin: 0,
-  //   fiatCoin: 1,
-  //   digitalCoinAmount: '1',
-  //   pwd: '123456',
-  //   expectResult: 0
-  // },
-  // {
-  //   digitalCoin: 1,
-  //   fiatCoin: 1,
-  //   digitalCoinAmount: '1',
-  //   pwd: '123456',
-  //   expectResult: 0
-  // },
-  // {
-  //   digitalCoin: 2,
-  //   fiatCoin: 1,
-  //   digitalCoinAmount: '1',
-  //   pwd: '123456',
-  //   expectResult: 0
-  // },
-  // {
-  //   digitalCoin: 2,
-  //   fiatCoin: 1,
-  //   digitalCoinAmount: '1',
-  //   pwd: '123456',
-  //   expectResult: 0
-  // },
 ];
 
-const exchangeAction = async (page: Page, digitalCoin: number, fiatCoin: number, digitalCoinAmount: string, pwd: string) => {
+const exchangeFiatAction = async(page: Page, digitalCoin: number, fiatCoin: number,digitalCoinAmount: string, pwd: string) => {
   await page.waitForSelector('.ant-pro-sider-menu')
 
   await page.waitForSelector('[title=兑换管理]')
@@ -116,14 +60,14 @@ const exchangeAction = async (page: Page, digitalCoin: number, fiatCoin: number,
 
   await page.waitForSelector('.ant-menu-submenu')
   await page.waitForTimeout(1000);
-  await page.click('[title=数字货币兑换]')
+  await page.click('[title=法币兑换]')
 
-  await page.waitForResponse(response => response.url().includes('/receipt/account/getAccountInfo') && response.status() === 200);
-  await page.waitForTimeout(1000);
+  // await page.waitForResponse(response => response.url().includes('/receipt/account/getAccountInfo') && response.status() === 200);
+  await page.waitForTimeout(2000)
   await page.click('#basic_sell')
   // 选中对应数字货币
   await page.waitForTimeout(1000);
-  for (let i = 0; i < digitalCoin; i++) {
+  for(let i = 0; i < digitalCoin; i++) {
     await page.keyboard.press('ArrowDown')
   }
   await page.keyboard.press('Enter')
@@ -132,18 +76,16 @@ const exchangeAction = async (page: Page, digitalCoin: number, fiatCoin: number,
   await page.click('#basic_buy')
   // 选中对应法币
   await page.waitForTimeout(1000);
-  for (let i = 0; i < fiatCoin; i++) {
+  for(let i = 0; i < fiatCoin; i++) {
     await page.keyboard.press('ArrowDown')
   }
   await page.keyboard.press('Enter')
-  // 等待汇率获取完成
-  await page.waitForResponse(response => response.url().includes('/receipt/digitalExchange/getExchangeConfig') && response.status() === 200);
 
   await page.waitForSelector('#basic_count')
-  await page.type('#basic_count', digitalCoinAmount)
+  await page.type('#basic_count',digitalCoinAmount)
 
   await page.waitForSelector('#basic_password')
-  await page.type('#basic_password', pwd)
+  await page.type('#basic_password',pwd)
 
   await page.waitForTimeout(1500)
   await page.waitForSelector('.ant-row > .ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn')
@@ -160,34 +102,34 @@ const exchangeAction = async (page: Page, digitalCoin: number, fiatCoin: number,
   }
 }
 
-beforeEach(async () => {
+beforeEach(async() => {
   await page.goto('http://localhost:8001');
   await page.waitForNavigation();
   await loginFunc(page);
 })
 
-afterEach(async () => {
+afterEach(async() => {
   await page.waitForTimeout(2000)
 })
 
-describe.each(exchangeTestData)(`兑换测试`, (item: ExchangeData) => {
+describe.each(exchangeTestData)(`法币兑换测试`, (item: ExchangeData) => {
   // define variables from ExchangeData keys
   const { digitalCoin, fiatCoin, digitalCoinAmount, pwd, expectResult, expectMsg } = item;
   const isExchangeSuccess = expectResult === 0;
   const text = isExchangeSuccess ? `${digitalMap[digitalCoin]} to ${fiatMap[fiatCoin]}兑换成功` : `${digitalMap[digitalCoin]} to ${fiatMap[fiatCoin]}兑换失败`;
-  test(text, async () => {
-    await exchangeAction(page, digitalCoin, fiatCoin, digitalCoinAmount, pwd);
+  test.skip(text, async () => {
+    await exchangeFiatAction(page,digitalCoin, fiatCoin,digitalCoinAmount, pwd);
 
-    try {
-      const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/digitalExchange/exchange') && response.status() === 200, { timeout: 4000 });
-      const exchangeResultJson: any = await exchangeResult.json();
+    try{
+      const exchangeResult = await page.waitForResponse(response => response.url().includes('/receipt/digitalExchange/exchange') && response.status() === 200, {timeout: 4000});
+      const exchangeResultJson:any = await exchangeResult.json();
 
       await expect(exchangeResultJson.success).toBe(isExchangeSuccess);
-    } catch (e) {
+    }catch(e){
       await page.waitForSelector('.ant-form-item-explain-error');
       const errorText = await page.$eval('.ant-form-item-explain-error', el => (el as HTMLElement).innerText);
       // console.log(errorText);
       await expect(errorText).toBe(expectMsg);
     }
-  }, 60000);
+  }, 20000);
 })

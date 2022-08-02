@@ -9,5 +9,12 @@ module.exports = {
     // }),
     // testMatch: ['**/__e2e__/**/*.test.js?(x)'] //指定需要进行测试的文件
     testTimeout: 30000, //设置测试超时时间
-
+    reporters: [
+        "default",
+        ["./node_modules/jest-html-reporter", {
+            "pageTitle": "Test Report",
+            "includeFailureMsg": true,
+            "includeSuiteFailure": true
+        }]
+    ]
 };
