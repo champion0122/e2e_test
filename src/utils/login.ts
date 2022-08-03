@@ -10,6 +10,9 @@ type Cookie = {
 }
 
 export const loginByPwd = async (page: Page, account: string, pwd: string) => {
+  await page.evaluate(() => {
+    localStorage.setItem('umi_locale','zh-CN');
+  });
   const accountInputEle = await page.$('#basic_account');
   const pwdInputEle = await page.$('#basic_password');
   await accountInputEle?.type(account, { delay: 20 });
@@ -70,6 +73,10 @@ const storeCookies = async(ckJson: Cookie) => {
 
 export const loginFunc = async(page: Page) => {
   try{
+    // 设置语言
+    await page.evaluate(() => {
+      localStorage.setItem('umi_locale','zh-CN');
+    });
     const cookies = await getCookies();
     const isSetCookie = await setCookies(page,cookies);
     if (!isSetCookie){

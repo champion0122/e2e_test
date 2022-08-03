@@ -120,22 +120,24 @@ const exchangeAction = async (page: Page, digitalCoin: number, fiatCoin: number,
   }
   await page.keyboard.press('Enter')
 
-  await page.waitForSelector('#basic_buy')
-  await page.click('#basic_buy')
-  // 选中对应法币
+  //  切换到对应法币select框
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Enter')
   await page.waitForTimeout(1000);
   for (let i = 0; i < fiatCoin; i++) {
     await page.keyboard.press('ArrowDown')
   }
   await page.keyboard.press('Enter')
+
   // 等待汇率获取完成
   await page.waitForResponse(response => response.url().includes('/receipt/digitalExchange/getExchangeConfig') && response.status() === 200);
 
-  await page.waitForSelector('#basic_count')
-  await page.type('#basic_count', digitalCoinAmount)
+  // 输入数字货币数量
+  await page.keyboard.press('Tab');
+  await page.keyboard.type(digitalCoinAmount);
 
-  await page.waitForSelector('#basic_password')
-  await page.type('#basic_password', pwd)
+  await page.keyboard.press('Tab');
+  await page.keyboard.type(pwd);
 
   await page.waitForTimeout(1500)
   await page.waitForSelector('.ant-row > .ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn')

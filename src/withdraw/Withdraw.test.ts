@@ -74,7 +74,7 @@ const withdrawTestData: WithdrawData[] = [
 // 2. tab
 // 3. scroll
 const withdraw = async (page: Page, withdrawData: WithdrawData) => {
-  const { withdrawType, withdrawCoin, tradeType, withdrawAccountType, withdrawAmount, withdrawAmountTo, withdrawAccount, pwd, postScript, remark } = withdrawData;
+  const { withdrawType, withdrawCoin, tradeType, withdrawAccountType, withdrawAmount, withdrawAmountTo, withdrawAccount, pwd, postScript='', remark='' } = withdrawData;
 
   await page.waitForResponse(response => response.url().includes('/receipt/bankAccount/getPassBanks') && response.status() === 200);
   await page.waitForSelector('#basic_withdrawType > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
@@ -107,25 +107,24 @@ const withdraw = async (page: Page, withdrawData: WithdrawData) => {
   }
   await page.keyboard.press('Enter');
 
-
-  await page.waitForSelector('#basic_isOnshore > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
-  await page.click('#basic_isOnshore > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
-
+  await page.keyboard.press('Tab')
   // 根据withdrawAccountType选择提现账户类型,银行账户也会变化需等待请求
   if (withdrawAccountType === 1) {
     await page.keyboard.press('ArrowRight');
     await page.waitForResponse(response => response.url().includes('/receipt/bankAccount/getPassBanks') && response.status() === 200);
   }
 
-  await page.click('#basic_withdrawNumber')
+  await page.keyboard.press('Tab')
   if (withdrawAmount) {
-    await page.type('#basic_withdrawNumber', withdrawAmount)
+    await page.keyboard.type(withdrawAmount)
+    await page.keyboard.press('Tab')
   } else {
-    await page.type('#basic_arriveAmount', withdrawAmountTo)
+    await page.keyboard.press('Tab')
+    await page.keyboard.type(withdrawAmountTo)
   }
 
-  await page.click('#basic_account')
-
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Enter')
   // 选择账号下拉框第i项
   await page.waitForTimeout(1000);
   for (let i = 0; i < withdrawAccount; i++) {
@@ -133,11 +132,18 @@ const withdraw = async (page: Page, withdrawData: WithdrawData) => {
   }
   await page.keyboard.press('Enter');
 
-  await page.type('#basic_password', pwd)
+  // 选中的是“添加提现账户”
+  await page.keyboard.press('Tab')
 
-  await page.type('#basic_toWithdrawalPostscript', postScript)
+  // 支付密码
+  await page.keyboard.press('Tab')
+  await page.keyboard.type(pwd)
 
-  await page.type('#basic_operationNote', remark)
+  await page.keyboard.press('Tab')
+  await page.keyboard.type(postScript)
+
+  await page.keyboard.press('Tab')
+  await page.keyboard.type(remark)
 
   await page.waitForSelector('.ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn > span')
   await page.click('.ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn > span')

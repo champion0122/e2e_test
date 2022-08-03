@@ -64,7 +64,7 @@ beforeEach(async () => {
 
 const withdrawDigital = async(page: Page, data: WithdrawDigital) => {
   const { withdrawType, chainType, withdrawAmount, receiveAddress, pwd } = data;
-  
+
   await page.waitForResponse(res => res.url().includes('/receipt/account/getAccountInfo') && res.status() === 200); 
 
   await page.waitForSelector('#basic_fiat')
@@ -78,24 +78,24 @@ const withdrawDigital = async(page: Page, data: WithdrawDigital) => {
 
   await page.waitForResponse(res => res.url().includes('/receipt/account/getDigitalWithdrawConfig') && res.status() === 200); 
 
-  await page.waitForSelector('#basic_chainName > label')
-  await page.click('#basic_chainName > label')
+  await page.keyboard.press('Tab')
 
   // 根据withdrawAccountType选择提现账户类型
   if (chainType === 1) {
     await page.keyboard.press('ArrowRight');
   }
 
-  await page.waitForSelector('#basic_withdrawalNumber')
-  await page.click('#basic_withdrawalNumber')
-  await page.type('#basic_withdrawalNumber', withdrawAmount)
+  // '#basic_withdrawalNumber' 提币数量
+  await page.keyboard.press('Tab')
+  await page.keyboard.type(withdrawAmount)
 
-  await page.waitForSelector('#basic_address')
-  await page.type('#basic_address',receiveAddress)
+  // '#basic_address' 接收地址
+  await page.keyboard.press('Tab')
+  await page.keyboard.type(receiveAddress)
 
-  await page.waitForSelector('#basic_password')
-  await page.click('#basic_password')
-  await page.type('#basic_password',pwd)
+  // '#basic_password' 支付密码
+  await page.keyboard.press('Tab')
+  await page.keyboard.type(pwd)
 
   await page.waitForSelector('.ant-form-item-control-input-content > .app-btn-submit-lg')
   await page.click('.ant-form-item-control-input-content > .app-btn-submit-lg')

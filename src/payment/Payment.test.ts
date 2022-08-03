@@ -102,9 +102,7 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
   await page.keyboard.press('Enter');
 
 
-  await page.waitForSelector('#basic_isOnshore > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
-  await page.click('#basic_isOnshore > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
-
+  await page.keyboard.press('Tab')
   // 根据paymentAccountType选择付款账户类型
   if (paymentAccountType === 1) {
     await page.keyboard.press('ArrowRight');
@@ -112,18 +110,17 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
     await page.waitForResponse(response => response.url().includes('/receipt/payBankAccount/getPayPassBanks') && response.status() === 200);
   }
 
-  await page.click('#basic_amount')
+  await page.keyboard.press('Tab')
   if (paymentAmount) {
-    await page.type('#basic_amount', paymentAmount)
+    await page.keyboard.type(paymentAmount)
+    await page.keyboard.press('Tab')
   } else {
-    await page.type('#basic_arriveAmount', paymentAmountTo)
+    await page.keyboard.press('Tab')
+    await page.keyboard.type(paymentAmountTo)
   }
-
-  await page.waitForTimeout(3000);
-  // await page.waitForSelector('#basic_bankId')
-  // await page.waitForTimeout(2000);
-  await page.click('#basic_bankId')
-
+  
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Enter')
   // 选择账号下拉框第i项
   await page.waitForTimeout(1000);
   for (let i = 0; i < paymentAccount; i++) {
@@ -131,11 +128,18 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
   }
   await page.keyboard.press('Enter');
 
-  await page.type('#basic_payPassword', pwd)
+  // 选中的是“添加提现账户”
+  await page.keyboard.press('Tab')
+  
+  // 支付密码
+  await page.keyboard.press('Tab')
+  await page.keyboard.type(pwd)
 
-  await page.type('#basic_toPayeePostscript', postScript)
+  await page.keyboard.press('Tab')
+  await page.keyboard.type(postScript)
 
-  await page.type('#basic_operationNote', remark)
+  await page.keyboard.press('Tab')
+  await page.keyboard.type(remark)
 
   await page.waitForSelector('.ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn > span')
   await page.click('.ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn > span')
