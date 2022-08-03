@@ -76,15 +76,6 @@ const withdrawTestData: WithdrawData[] = [
 const withdraw = async (page: Page, withdrawData: WithdrawData) => {
   const { withdrawType, withdrawCoin, tradeType, withdrawAccountType, withdrawAmount, withdrawAmountTo, withdrawAccount, pwd, postScript, remark } = withdrawData;
 
-  // await page.waitForSelector('.ant-pro-sider-menu')
-
-  // await page.waitForSelector('[title=提现管理]')
-  // await page.click('[title=提现管理]')
-
-  // await page.waitForSelector('.ant-menu-submenu')
-  // await page.waitForTimeout(1000);
-  // await page.click('[title=提现]')
-
   await page.waitForResponse(response => response.url().includes('/receipt/bankAccount/getPassBanks') && response.status() === 200);
   await page.waitForSelector('#basic_withdrawType > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
   await page.click('#basic_withdrawType > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')

@@ -109,14 +109,6 @@ const exchangeTestData: ExchangeData[] = [
 ];
 
 const exchangeAction = async (page: Page, digitalCoin: number, fiatCoin: number, digitalCoinAmount: string, pwd: string) => {
-  await page.waitForSelector('.ant-pro-sider-menu')
-
-  await page.waitForSelector('[title=兑换管理]')
-  await page.click('[title=兑换管理]')
-
-  await page.waitForSelector('.ant-menu-submenu')
-  await page.waitForTimeout(1000);
-  await page.click('[title=数字货币兑换]')
 
   await page.waitForResponse(response => response.url().includes('/receipt/account/getAccountInfo') && response.status() === 200);
   await page.waitForTimeout(1000);
@@ -164,6 +156,10 @@ beforeEach(async () => {
   await page.goto('http://localhost:8001');
   await page.waitForNavigation();
   await loginFunc(page);
+})
+
+beforeEach(async () => {
+  await page.goto('http://localhost:8001/ExchangeManagement/DigitalCurrencyExchange');
 })
 
 afterEach(async () => {

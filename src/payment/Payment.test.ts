@@ -70,15 +70,6 @@ const paymentTestData: PaymentData[] = [
 const fiatPay = async (page: Page, paymentData: PaymentData) => {
   const { paymentType, paymentCoin, tradeType, paymentAccountType, paymentAmount, paymentAmountTo, paymentAccount, pwd, expectResult, postScript, remark } = paymentData;
 
-  await page.waitForSelector('.ant-pro-sider-menu')
-
-  await page.waitForSelector('[title=付款管理]')
-  await page.click('[title=付款管理]')
-
-  await page.waitForSelector('.ant-menu-submenu')
-  await page.waitForTimeout(1000);
-  await page.click('[title=付款]')
-
   await page.waitForTimeout(1000);
 
   await page.waitForSelector('#basic_type > label.ant-radio-wrapper.ant-radio-wrapper-in-form-item')
@@ -150,10 +141,14 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
   await page.click('.ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn > span')
 }
 
-beforeEach(async () => {
+beforeAll(async () => {
   await page.goto('http://localhost:8001');
   await page.waitForNavigation();
   await loginFunc(page);
+})
+
+beforeEach(async () => {
+  await page.goto('http://localhost:8001/paymentManagement/Payment');
 })
 
 describe.each(paymentTestData)(`付款测试`, (item: PaymentData) => {

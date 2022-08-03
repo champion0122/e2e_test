@@ -52,29 +52,25 @@ const withdrawDigitalData: WithdrawDigital[] = [
   },
 ]
 
-beforeEach(async() => {
+beforeAll(async() => {
   await page.goto('http://localhost:8001');
   await page.waitForNavigation();
   await loginFunc(page);
 })
 
+beforeEach(async () => {
+  await page.goto('http://localhost:8001/WithdrawalManagement/Withdrawal');
+})
+
 const withdrawDigital = async(page: Page, data: WithdrawDigital) => {
   const { withdrawType, chainType, withdrawAmount, receiveAddress, pwd } = data;
-  await page.waitForSelector('.ant-pro-sider-menu')
-
-  await page.waitForSelector('[title=提现管理]')
-  await page.click('[title=提现管理]')
-
-  await page.waitForSelector('.ant-menu-submenu')
-  await page.waitForTimeout(1000);
-  await page.click('[title=提币]')
-
+  
   await page.waitForResponse(res => res.url().includes('/receipt/account/getAccountInfo') && res.status() === 200); 
 
   await page.waitForSelector('#basic_fiat')
   await page.waitForTimeout(1000);
   await page.click('#basic_fiat')
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(1500);
   for(let i = 0; i < withdrawType; i++) {
     await page.keyboard.press('ArrowDown');
   }
