@@ -1,4 +1,5 @@
 import { Page } from "puppeteer";
+import { baseUrl } from "../config/config";
 import { loginFunc } from "../utils/login";
 
 type ExchangeData = {
@@ -155,13 +156,13 @@ const exchangeAction = async (page: Page, digitalCoin: number, fiatCoin: number,
 }
 
 beforeEach(async () => {
-  await page.goto('http://localhost:8001');
+  await page.goto(baseUrl);
   await page.waitForNavigation();
   await loginFunc(page);
 })
 
 beforeEach(async () => {
-  await page.goto('http://localhost:8001/ExchangeManagement/DigitalCurrencyExchange');
+  await page.goto(`${baseUrl}/ExchangeManagement/DigitalCurrencyExchange`);
 })
 
 afterEach(async () => {

@@ -1,4 +1,5 @@
 import { Page } from 'puppeteer';
+import { baseUrl } from './config/config';
 import { loginByPwd } from './utils/login';
 
 // todo: 配置文件的使用
@@ -36,7 +37,7 @@ type LoginTestDataUnit = {
 }
 
 beforeEach(async () => {
-  await page.goto('http://localhost:8001/user/login');
+  await page.goto(`${baseUrl}/user/login`);
 });
 
 describe.each(loginTestData)('$account测试登录', (item: LoginTestDataUnit) => {

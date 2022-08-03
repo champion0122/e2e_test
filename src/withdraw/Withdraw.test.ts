@@ -1,4 +1,5 @@
 import { ElementHandle, Page } from 'puppeteer';
+import { baseUrl } from '../config/config';
 import { loginFunc } from '../utils/login';
 
 type WithdrawData = {
@@ -150,13 +151,13 @@ const withdraw = async (page: Page, withdrawData: WithdrawData) => {
 }
 
 beforeAll(async () => {
-  await page.goto('http://localhost:8001');
+  await page.goto(baseUrl);
   await page.waitForNavigation();
   await loginFunc(page);
 })
 
 beforeEach(async () => {
-  await page.goto('http://localhost:8001/WithdrawalManagement/Withdraw');
+  await page.goto(`${baseUrl}/WithdrawalManagement/Withdraw`);
 })
 
 describe.each(withdrawTestData)(`提现测试`, (item: WithdrawData) => {

@@ -1,4 +1,5 @@
 import { ElementHandle, Page } from 'puppeteer';
+import { baseUrl } from '../config/config';
 import { loginFunc } from '../utils/login';
 
 type PaymentData = {
@@ -118,7 +119,7 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
     await page.keyboard.press('Tab')
     await page.keyboard.type(paymentAmountTo)
   }
-  
+
   await page.keyboard.press('Tab')
   await page.keyboard.press('Enter')
   // 选择账号下拉框第i项
@@ -146,13 +147,13 @@ const fiatPay = async (page: Page, paymentData: PaymentData) => {
 }
 
 beforeAll(async () => {
-  await page.goto('http://localhost:8001');
+  await page.goto(baseUrl);
   await page.waitForNavigation();
   await loginFunc(page);
 })
 
 beforeEach(async () => {
-  await page.goto('http://localhost:8001/paymentManagement/Payment');
+  await page.goto(`${baseUrl}/paymentManagement/Payment`);
 })
 
 describe.each(paymentTestData)(`付款测试`, (item: PaymentData) => {
