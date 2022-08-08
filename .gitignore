@@ -3,5 +3,5 @@ node_modules
 .DS_Store
 .idea
 yarn.lock
-
+test-report.html
 src/cookies/cookies.json

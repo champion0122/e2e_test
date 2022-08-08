@@ -1,7 +1,8 @@
-import {writeFile, readFile} from 'fs/promises'
+import {writeFile, readFile, mkdir, stat} from 'fs/promises'
 import { Page } from 'puppeteer';
 import { cookieUrl, baseUrl, language, testAccount, testPassword } from '../config/config';
 
+const cookieDir = './src/cookies';
 const cookiePath = './src/cookies/cookies.json';
 
 type Cookie = {
@@ -10,10 +11,27 @@ type Cookie = {
   expire: number
 }
 
+// 传入文件夹的路径看是否存在，存在不用管，不存在则直接创建文件夹
+/**
+ * 判断文件夹是否存在，不存在可以直接创建
+ * @param path {String} 文件路径
+ * @returns {Promise<boolean>}
+ */
+const exitsFolder = async (path: string) => {
+  try {
+      await stat(path)
+      console.log('success')
+  } catch (e) {
+      // 不存在文件夹，直接创建
+      await mkdir(path)
+      console.log('mkdir success')
+  }
+}
+
 export const loginByPwd = async (page: Page, account: string, pwd: string) => {
-  await page.evaluate(() => {
+  await page.evaluate((language) => {
     localStorage.setItem('umi_locale',language);
-  });
+  },language);
   const loginBtnSelector = '.ant-row > .ant-col > .ant-form-item-control-input > .ant-form-item-control-input-content > .ant-btn';
   const accountInputEle = await page.$('#basic_account');
   const pwdInputEle = await page.$('#basic_password');
@@ -70,15 +88,16 @@ const setCookies = async(page: Page,cookies: Cookie) => {
 const storeCookies = async(ckJson: Cookie) => {
   // 设置过期时间
   ckJson.expire = Date.now() + 1000 * 60 * 60 * 24;
+  await exitsFolder(cookieDir);
   await writeFile(cookiePath, JSON.stringify(ckJson));
 }
 
 export const loginFunc = async(page: Page) => {
   try{
     // 设置语言
-    await page.evaluate(() => {
+    await page.evaluate((language) => {
       localStorage.setItem('umi_locale',language);
-    });
+    },language);
     const cookies = await getCookies();
     const isSetCookie = await setCookies(page,cookies);
     if (!isSetCookie){
